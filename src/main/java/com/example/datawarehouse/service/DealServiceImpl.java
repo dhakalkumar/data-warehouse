@@ -29,8 +29,8 @@ public class DealServiceImpl implements DealService {
                 log.error("Deal with given ID already exists!");
                 throw new DealAlreadyExistsException("Deal with ID '" + dealRequest.getDealId() + "' already exists");
             }
-            
-            Deal deal = new Deal().builder()
+    
+            Deal deal = Deal.builder()
                     .dealId(dealRequest.getDealId())
                     .dealAmount(dealRequest.getDealAmount())
                     .dealTimestamp(LocalDateTime.now())

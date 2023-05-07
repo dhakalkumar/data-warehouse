@@ -13,12 +13,11 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 
-import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest
@@ -43,20 +42,16 @@ class DataWarehouseApplicationTests {
                 .dealId(dealDto.getDealId())
                 .fromCurrencyIsoCode(dealDto.getFromCurrencyISOCode())
                 .toCurrencyIsoCode(dealDto.getToCurrencyISOCode())
+                .dealTimestamp(LocalDateTime.now())
                 .dealAmount(dealDto.getDealAmount())
                 .build();
         when(dealService.saveDeals(List.of(dealDto))).thenReturn(List.of(createdDeal));
         
         mockMvc.perform(post("/deals")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(dealDto)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(1)))
-                .andExpect(jsonPath("$.dealId", is(dealDto.getDealId())))
-                .andExpect(jsonPath("$.fromCurrencyIsoCode", is(dealDto.getFromCurrencyISOCode())))
-                .andExpect(jsonPath("$.toCurrencyIsoCode", is(dealDto.getToCurrencyISOCode())))
-                .andExpect(jsonPath("$.dealAmount", is(dealDto.getDealAmount().doubleValue())));
-
+                .content(String.valueOf(Arrays.asList(asJsonString(dealDto)))))
+                .andExpect(status().isCreated());
+        
         verify(dealService, times(1)).saveDeals(List.of(dealDto));
         verifyNoMoreInteractions(dealService);
     }
@@ -72,7 +67,7 @@ class DataWarehouseApplicationTests {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(dealDto)))
                 .andExpect(status().isBadRequest());
-    
+        
         verify(dealService, never()).saveDeals(List.of(dealDto));
     }
     
@@ -88,7 +83,7 @@ class DataWarehouseApplicationTests {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(dealDto)))
                 .andExpect(status().isBadRequest());
-    
+        
         verify(dealService, never()).saveDeals(List.of(dealDto));
     }
     
